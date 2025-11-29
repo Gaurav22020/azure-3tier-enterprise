@@ -1,12 +1,12 @@
-# 1) Application Gateway Subnet NSG
 resource "azurerm_network_security_group" "nsg_appgw" {
   name                = "nsg-appgw"
   location            = var.location
   resource_group_name = var.rg_name
 
+  # allow HTTP
   security_rule {
     name                       = "allow_port_80_internet"
-    priority                   = 100
+    priority                   = 101
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"
@@ -16,9 +16,10 @@ resource "azurerm_network_security_group" "nsg_appgw" {
     destination_address_prefix = "*"
   }
 
+  # allow HTTPS
   security_rule {
     name                       = "allow_port_443_internet"
-    priority                   = 110
+    priority                   = 102
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"
@@ -27,7 +28,21 @@ resource "azurerm_network_security_group" "nsg_appgw" {
     source_address_prefix      = "Internet"
     destination_address_prefix = "*"
   }
+
+  # 🚨 REQUIRED FOR WAF_v2 — THIS IS WHAT YOU WERE MISSING
+  security_rule {
+    name                       = "allow_ephemeral_port_range"
+    priority                   = 103
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "65200-65535"
+    source_address_prefix      = "Internet"
+    destination_address_prefix = "*"
+  }
 }
+
 
 resource "azurerm_subnet_network_security_group_association" "appgw_assoc" {
   subnet_id                 = var.subnet_ids.appgw

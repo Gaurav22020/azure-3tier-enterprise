@@ -44,7 +44,6 @@ resource "azurerm_application_gateway" "appgw" {
   backend_http_settings {
     name                  = "http-settings"
     cookie_based_affinity = "Disabled"
-    affinity_cookie_name  = ""
     port                  = 80
     protocol              = "Http"
     request_timeout       = 30
@@ -60,6 +59,7 @@ resource "azurerm_application_gateway" "appgw" {
   request_routing_rule {
     name                       = "rule-web"
     rule_type                  = "Basic"
+    priority                   = 100
     http_listener_name         = "listener-http"
     backend_address_pool_name  = "be-web-tier"
     backend_http_settings_name = "http-settings"

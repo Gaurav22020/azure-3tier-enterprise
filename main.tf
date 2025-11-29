@@ -27,8 +27,23 @@ module "nsg" {
 }
 module "app_gateway" {
   source       = "./modules/security-appgw"
-  rg_name      = module.rg.rg_name
-  location     = module.rg.rg_location
+  rg_name      = module.rg.resource_group_name
+  location     = module.rg.location
   appgw_subnet = module.network.subnet_ids.appgw
   backend_ip   = "10.0.3.10" # Web internal LB IP (fixed)
+}
+module "jumpbox" {
+  source         = "./modules/management-jumpbox"
+  rg_name        = module.rg.resource_group_name
+  location       = module.rg.location
+  subnet_id      = module.network.subnet_ids.mgmt
+  admin_username = "azureadmin"
+  admin_password = "Admin@12345!" # you MUST change later
+}
+
+module "web_tier" {
+  source    = "./modules/compute-web-tier"
+  rg_name   = module.rg.rg_name
+  location  = module.rg.rg_location
+  subnet_id = module.network.subnet_ids.web
 }
