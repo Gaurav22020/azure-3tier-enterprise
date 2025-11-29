@@ -1,7 +1,7 @@
 module "rg" {
   source              = "./modules/resourcegroup"
   resource_group_name = "rg-3tier-enterprise"
-  location            = "eastus"
+  location            = "centralus"
 }
 
 module "network" {
@@ -31,6 +31,7 @@ module "app_gateway" {
   location     = module.rg.location
   appgw_subnet = module.network.subnet_ids.appgw
   backend_ip   = "10.0.3.10" # Web internal LB IP (fixed)
+  depends_on   = [module.rg, module.network]
 }
 module "jumpbox" {
   source         = "./modules/management-jumpbox"
@@ -39,11 +40,19 @@ module "jumpbox" {
   subnet_id      = module.network.subnet_ids.mgmt
   admin_username = "azureadmin"
   admin_password = "Admin@12345!" # you MUST change later
+  depends_on     = [module.rg, module.network]
 }
 
 module "web_tier" {
-  source    = "./modules/compute-web-tier"
-  rg_name   = module.rg.rg_name
-  location  = module.rg.rg_location
-  subnet_id = module.network.subnet_ids.web
+  source     = "./modules/compute-web-tier"
+  rg_name    = module.rg.resource_group_name
+  location   = module.rg.location
+  subnet_id  = module.network.subnet_ids.web
+  depends_on = [module.rg, module.network]
+}
+module "biz_tier" {
+  source    = "./modules/compute-biz-tier"
+  rg_name   = module.rg.resource_group_name
+  location  = module.rg.location
+  subnet_id = module.network.subnet_ids.biz
 }
