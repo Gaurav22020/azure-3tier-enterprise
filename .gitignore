@@ -1,0 +1,16 @@
+# Terraform
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+override.tf.json
+*.tfvars
+terraform.tfvars
+providers.tf
+# Sensitive
+*.pem
+*.key
+*.pfx
+secrets.txt
