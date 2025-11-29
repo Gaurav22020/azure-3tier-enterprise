@@ -56,3 +56,15 @@ module "biz_tier" {
   location  = module.rg.location
   subnet_id = module.network.subnet_ids.biz
 }
+module "cloud_witness" {
+  source   = "./modules/data-cloud-witness"
+  rg_name  = module.rg.resource_group_name
+  location = module.rg.location
+}
+
+module "sql_tier" {
+  source    = "./modules/data-sql-tier"
+  rg_name   = module.rg.resource_group_name
+  location  = module.rg.location
+  subnet_id = module.network.subnet_ids.data
+}
